@@ -34,6 +34,15 @@
 		regulator-max-microvolt = <3300000>;
 		regulator-always-on;
 	};
+
+	backlight: backlight {
+		compatible = "pwm-backlight";
+		pwms = <&pwm2 0 500000 0>;
+		brightness-levels = <0 100>;
+		num-interpolated-steps = <100>;
+		default-brightness-level = <99>;
+		status = "okay";
+	};
 };
 
 &ethphy {
@@ -165,11 +174,87 @@
 			MX8MN_IOMUXC_UART3_TXD_UART3_DCE_TX	0x140
 		>;
 	};
+
+	pinctrl_mipi_dsi_rst: mipi_dsi_rst {
+		fsl,pins = <
+			MX8MN_IOMUXC_I2C4_SDA_GPIO5_IO21		0x41
+		>;
+	};
+
+
+	pinctrl_mipi_dsi_bl_pwm2: mipi_dsi_bl_pwm2 {
+		fsl,pins = <
+			MX8MN_IOMUXC_I2C4_SCL_PWM2_OUT		0x6
+		>;
+	};
+
 };
 
 &fec1 {
 	status = "disabled";
 };
+
+&lcdif {
+	assigned-clocks = <&clk IMX8MN_VIDEO_PLL1>;
+	assigned-clock-rates = <594000000>;
+	status = "okay";
+};
+
+&gpu {
+	status = "okay";
+};
+
+&pgc_dispmix {
+	assigned-clocks = <&clk IMX8MN_CLK_DISP_AXI>, <&clk IMX8MN_CLK_DISP_APB>;
+	assigned-clock-parents = <&clk IMX8MN_SYS_PLL2_1000M>, <&clk IMX8MN_SYS_PLL1_800M>;
+	assigned-clock-rates = <500000000>, <200000000>;
+};
+
+&mipi_dsi {
+	#address-cells = <1>;
+	#size-cells = <0>;
+	samsung,esc-clock-frequency = <20000000>;
+
+	status = "okay";
+	
+	panel@0 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "kingway,hw-021p0z002-01", "sitronix,st7701";
+		reg = <0>;
+		reset-gpios = <&gpio5 21 GPIO_ACTIVE_HIGH>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_mipi_dsi_rst>;
+		backlight = <&backlight>;
+
+		port@0 {
+			reg = <0>;
+			panel_in_dsi: endpoint {
+				remote-endpoint = <&mipi_dsi_out>;
+			};
+		};
+	};
+
+	ports {
+		port@1 {
+			reg = <1>;
+
+			mipi_dsi_out: endpoint {
+				remote-endpoint = <&panel_in_dsi>;
+				clock-lanes = <0>;
+				data-lanes = <1 2>;
+			};
+		};
+	};
+};
+
+// PWM for backlight
+&pwm2 {
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_mipi_dsi_bl_pwm2>;
+};
+
 &ecspi1  {
 	touchscreen@0 {
 		status = "disabled";
