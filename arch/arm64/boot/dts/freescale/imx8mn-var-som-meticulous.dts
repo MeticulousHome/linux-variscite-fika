@@ -89,9 +89,7 @@
 			};
 		};
 	};
-};
 
-&i2c3 {
 	rtc@68 {
 		compatible = "dallas,ds1337";
 		reg = <0x68>;
