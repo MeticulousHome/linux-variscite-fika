@@ -112,9 +112,7 @@
 };
 
 &uart3 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_uart3>;
-	status = "okay";
+	status = "disabled";
 };
 
 &usbotg1 {
@@ -168,13 +166,6 @@
 		>;
 	};
 
-	pinctrl_uart3: uart3grp {
-		fsl,pins = <
-			MX8MN_IOMUXC_UART3_RXD_UART3_DCE_RX	0x140
-			MX8MN_IOMUXC_UART3_TXD_UART3_DCE_TX	0x140
-		>;
-	};
-
 	pinctrl_mipi_dsi_rst: mipi_dsi_rst {
 		fsl,pins = <
 			MX8MN_IOMUXC_I2C4_SDA_GPIO5_IO21		0x41
@@ -188,6 +179,11 @@
 		>;
 	};
 
+	pinctrl_gpio5_io26: gpio526grp {
+		fsl,pins = <
+			MX8MN_IOMUXC_UART3_RXD_GPIO5_IO26		0x61
+		>;
+	};
 };
 
 &fec1 {
